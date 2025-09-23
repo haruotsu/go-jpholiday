@@ -1,0 +1,101 @@
+name: Update Japanese Holidays
+
+on:
+  schedule:
+    # 毎月1日の日本時間9:00（UTC 0:00）に実行
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # 手動実行も可能
+    inputs:
+      dry_run:
+        description: 'Dry run (do not commit changes)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  update-holidays:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Update holidays data
+      env:
+        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      run: |
+        if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+          echo "Running in dry-run mode"
+          go run cmd/update-holidays/main.go -dry-run
+        else
+          go run cmd/update-holidays/main.go
+        fi
+
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if git diff --quiet data/holidays.json; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit and push if changed
+      if: steps.check_changes.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
+      run: |
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add data/holidays.json
+        git commit -m "chore: update holidays data - $(date '+%Y-%m-%d')"
+        git push
+
+    - name: Create issue if update failed
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Holiday data update failed',
+            body: `The automated holiday data update failed on ${new Date().toISOString()}.
+
+            Please check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.
+
+            This might be due to:
+            - Google Calendar API issues
+            - API key expiration or invalid configuration
+            - Network connectivity problems
+            `,
+            labels: ['bug', 'automated']
+          });
+          console.log(`Created issue #${issue.data.number}`);
+
+    - name: Notify success (optional)
+      if: success() && steps.check_changes.outputs.has_changes == 'true'
+      run: |
+        echo "✅ Successfully updated holiday data"
+        echo "Changes committed to main branch"
