@@ -15,6 +15,7 @@ func TestNewFetcher_WithAPIKey(t *testing.T) {
 
 	if f == nil {
 		t.Fatal("expected fetcher to be created, got nil")
+		return
 	}
 
 	if f.APIKey != apiKey {
@@ -128,13 +129,9 @@ func TestMockFetcher_FetchHolidaysRange(t *testing.T) {
 
 func TestFetcherInterface(t *testing.T) {
 	// Fetcherインターフェースが正しく定義されていることを確認
-	var fetcher Fetcher
-
 	// MockFetcherがインターフェースを実装していることを確認
-	fetcher = &MockFetcher{}
-	if fetcher == nil {
-		t.Error("MockFetcher should implement Fetcher interface")
-	}
+	var fetcher Fetcher = &MockFetcher{}
+	_ = fetcher
 }
 
 func TestRetryMechanism(t *testing.T) {

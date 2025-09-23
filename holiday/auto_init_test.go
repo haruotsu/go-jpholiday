@@ -108,10 +108,12 @@ func TestDefaultDataContent(t *testing.T) {
 
 	if defaultCache == nil {
 		t.Fatal("Default cache should not be nil")
+		return
 	}
 
 	if len(defaultCache.Holidays) == 0 {
 		t.Fatal("Default cache should contain holidays")
+		return
 	}
 
 	// 主要な祝日がデフォルトデータに含まれていることを確認
