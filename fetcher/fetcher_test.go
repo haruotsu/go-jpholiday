@@ -173,3 +173,42 @@ func TestNetworkErrorHandling(t *testing.T) {
 		}
 	}
 }
+
+func TestIsOfficialHoliday(t *testing.T) {
+	// 公式祝日判定のテスト
+	tests := []struct {
+		description string
+		expected    bool
+		name        string
+	}{
+		{
+			description: "祝日",
+			expected:    true,
+			name:        "Official holiday",
+		},
+		{
+			description: "祭日\n祭日を非表示にするには、Google カレンダーの [設定] > [日本の祝日] に移動してください",
+			expected:    false,
+			name:        "Festival/cultural observance",
+		},
+		{
+			description: "",
+			expected:    false,
+			name:        "Empty description",
+		},
+		{
+			description: "some other description",
+			expected:    false,
+			name:        "Other description",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := isOfficialHoliday(tt.description)
+			if result != tt.expected {
+				t.Errorf("isOfficialHoliday(%q) = %v, expected %v", tt.description, result, tt.expected)
+			}
+		})
+	}
+}

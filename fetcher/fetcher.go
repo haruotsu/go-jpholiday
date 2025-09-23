@@ -20,6 +20,24 @@ const (
 	retryDelay = 1 * time.Second
 )
 
+// isOfficialHoliday determines if an event is an official Japanese holiday
+// by checking the description field. Official holidays have "祝日" in the description,
+// while festivals and cultural observances have "祭日" in the description.
+func isOfficialHoliday(description string) bool {
+	// First, exclude events with "祭日" (festival/cultural observance) in description
+	if strings.Contains(description, "祭日") {
+		return false
+	}
+
+	// Then, include events with "祝日" (official holiday) in description
+	if strings.Contains(description, "祝日") {
+		return true
+	}
+
+	// For events without clear description, be conservative and exclude
+	return false
+}
+
 // Fetcher interface defines methods for fetching holiday data
 type Fetcher interface {
 	FetchHolidays(year int) ([]holiday.Holiday, error)
@@ -104,14 +122,18 @@ func (f *GoogleCalendarFetcher) FetchHolidays(year int) ([]holiday.Holiday, erro
 			continue
 		}
 
-		// Create Holiday struct
-		h := holiday.Holiday{
-			Date:        eventDate,
-			Name:        event.Summary,
-			Description: strings.TrimSpace(event.Description),
-		}
+		// Filter out non-official holidays (festivals)
+		description := strings.TrimSpace(event.Description)
+		if isOfficialHoliday(description) {
+			// Create Holiday struct
+			h := holiday.Holiday{
+				Date:        eventDate,
+				Name:        event.Summary,
+				Description: description,
+			}
 
-		holidays = append(holidays, h)
+			holidays = append(holidays, h)
+		}
 	}
 
 	return holidays, nil
