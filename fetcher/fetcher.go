@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	// Japanese Holiday Calendar ID
-	japaneseHolidayCalendarID = "ja.japanese#holiday@group.v.calendar.google.com"
+	// Japanese Official Holiday Calendar ID (excludes cultural observances like 節分, 七夕, クリスマス)
+	japaneseHolidayCalendarID = "ja.japanese.official#holiday@group.v.calendar.google.com"
 
 	// Retry configuration
 	maxRetries = 3
