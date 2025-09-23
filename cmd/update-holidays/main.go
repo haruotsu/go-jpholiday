@@ -17,12 +17,12 @@ var (
 
 // Config holds the configuration for the CLI tool
 type Config struct {
-	startYear int
-	endYear   int
-	cacheFile string
-	dryRun    bool
-	debug     bool
-	showHelp  bool
+	startYear   int
+	endYear     int
+	cacheFile   string
+	dryRun      bool
+	debug       bool
+	showHelp    bool
 	showVersion bool
 }
 
