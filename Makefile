@@ -6,7 +6,7 @@ help: ## ヘルプを表示
 setup: ## プロジェクトのセットアップ
 	@echo "Setting up project structure..."
 	@mkdir -p holiday fetcher data cmd/update-holidays .github/workflows
-	@go mod init github.com/haruotsu/go-holiday 2>/dev/null || true
+	@go mod init github.com/haruotsu/go-jpholiday 2>/dev/null || true
 	@go mod tidy
 	@echo "Setup complete!"
 
@@ -92,7 +92,7 @@ update-deps: ## 依存関係を最新バージョンに更新
 .PHONY: docs
 docs: ## ドキュメントをブラウザで開く
 	@which godoc > /dev/null 2>&1 || (echo "Installing godoc..." && go install golang.org/x/tools/cmd/godoc@latest)
-	@echo "Opening documentation at http://localhost:6060/pkg/github.com/haruotsu/go-holiday/"
+	@echo "Opening documentation at http://localhost:6060/pkg/github.com/haruotsu/go-jpholiday/"
 	@godoc -http=:6060
 
 .PHONY: profile
