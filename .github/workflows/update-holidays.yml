@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   update-holidays:
@@ -52,9 +53,9 @@ jobs:
       run: |
         if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
           echo "Running in dry-run mode"
-          go run cmd/update-holidays/main.go -dry-run
+          go run ./cmd/update-holidays -dry-run
         else
-          go run cmd/update-holidays/main.go
+          go run ./cmd/update-holidays
         fi
 
     - name: Check for changes
@@ -80,22 +81,32 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const issue = await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: '🚨 Holiday data update failed',
-            body: `The automated holiday data update failed on ${new Date().toISOString()}.
+          try {
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Holiday data update failed',
+              body: `The automated holiday data update failed on ${new Date().toISOString()}.
 
-            Please check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.
+              Please check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.
 
-            This might be due to:
-            - Google Calendar API issues
-            - API key expiration or invalid configuration
-            - Network connectivity problems
-            `,
-            labels: ['bug', 'automated']
-          });
-          console.log(`Created issue #${issue.data.number}`);
+              This might be due to:
+              - Google Calendar API issues
+              - API key expiration or invalid configuration
+              - Network connectivity problems
+
+              **Workflow Details:**
+              - Repository: ${context.repo.owner}/${context.repo.repo}
+              - Run ID: ${context.runId}
+              - Trigger: ${context.eventName}
+              `,
+              labels: ['bug', 'automated']
+            });
+            console.log(`✅ Created issue #${issue.data.number}`);
+          } catch (error) {
+            console.error('❌ Failed to create issue:', error.message);
+            console.log('ℹ️  Manual intervention may be required');
+          }
 
     - name: Notify success (optional)
       if: success() && steps.check_changes.outputs.has_changes == 'true'
