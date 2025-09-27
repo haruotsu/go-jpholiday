@@ -16,26 +16,15 @@ var (
 	version = "dev" // Set by build flags
 )
 
-// Config holds the configuration for the CLI tool
-type Config struct {
-	startYear   int
-	endYear     int
-	cacheFile   string
-	dryRun      bool
-	debug       bool
-	showHelp    bool
-	showVersion bool
-}
-
 func main() {
 	config := parseFlags()
 
-	if config.showHelp {
+	if config.ShowHelp {
 		printUsage()
 		os.Exit(0)
 	}
 
-	if config.showVersion {
+	if config.ShowVersion {
 		fmt.Printf("update-holidays version %s\n", version)
 		os.Exit(0)
 	}
@@ -60,22 +49,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	if config.debug {
-		log.Printf("Fetching holidays for years %d-%d", config.startYear, config.endYear)
+	if config.Debug {
+		log.Printf("Fetching holidays for years %d-%d", config.StartYear, config.EndYear)
 	}
 
 	// Fetch holidays
-	holidays, err := f.FetchHolidaysRange(config.startYear, config.endYear)
+	holidays, err := f.FetchHolidaysRange(config.StartYear, config.EndYear)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error fetching holidays: %v\n", err)
 		os.Exit(1)
 	}
 
-	if config.debug {
+	if config.Debug {
 		log.Printf("Fetched %d holidays", len(holidays))
 	}
 
-	if config.dryRun {
+	if config.DryRun {
 		fmt.Printf("Dry run: Would update cache with %d holidays\n", len(holidays))
 		for _, h := range holidays {
 			fmt.Printf("  %s: %s\n", h.Date.Format("2006-01-02"), h.Name)
@@ -92,7 +81,7 @@ func main() {
 			cache = &model.HolidayCache{
 				Holidays: make(map[string]model.Holiday),
 			}
-			if config.debug {
+			if config.Debug {
 				log.Printf("Creating new cache file: %s", cacheFilePath)
 			}
 		} else {
@@ -115,18 +104,18 @@ func main() {
 }
 
 // parseFlags parses command line flags
-func parseFlags() *Config {
-	config := &Config{}
+func parseFlags() *model.Config {
+	config := &model.Config{}
 
-	flag.IntVar(&config.startYear, "start-year", time.Now().Year(), "Start year for fetching holidays")
-	flag.IntVar(&config.endYear, "end-year", time.Now().Year()+1, "End year for fetching holidays")
-	flag.StringVar(&config.cacheFile, "cache-file", "", "Path to cache file (default: data/holidays.json)")
-	flag.BoolVar(&config.dryRun, "dry-run", false, "Print what would be done without making changes")
-	flag.BoolVar(&config.debug, "debug", false, "Enable debug output")
-	flag.BoolVar(&config.showHelp, "help", false, "Show help message")
-	flag.BoolVar(&config.showHelp, "h", false, "Show help message")
-	flag.BoolVar(&config.showVersion, "version", false, "Show version information")
-	flag.BoolVar(&config.showVersion, "v", false, "Show version information")
+	flag.IntVar(&config.StartYear, "start-year", time.Now().Year(), "Start year for fetching holidays")
+	flag.IntVar(&config.EndYear, "end-year", time.Now().Year()+1, "End year for fetching holidays")
+	flag.StringVar(&config.CacheFile, "cache-file", "", "Path to cache file (default: data/holidays.json)")
+	flag.BoolVar(&config.DryRun, "dry-run", false, "Print what would be done without making changes")
+	flag.BoolVar(&config.Debug, "debug", false, "Enable debug output")
+	flag.BoolVar(&config.ShowHelp, "help", false, "Show help message")
+	flag.BoolVar(&config.ShowHelp, "h", false, "Show help message")
+	flag.BoolVar(&config.ShowVersion, "version", false, "Show version information")
+	flag.BoolVar(&config.ShowVersion, "v", false, "Show version information")
 
 	flag.Parse()
 
@@ -139,23 +128,23 @@ func getAPIKey() string {
 }
 
 // validateFlags validates the provided configuration
-func validateFlags(config *Config) error {
-	if config.startYear > config.endYear {
-		return fmt.Errorf("start year (%d) cannot be greater than end year (%d)", config.startYear, config.endYear)
+func validateFlags(config *model.Config) error {
+	if config.StartYear > config.EndYear {
+		return fmt.Errorf("start year (%d) cannot be greater than end year (%d)", config.StartYear, config.EndYear)
 	}
 
 	// Prevent fetching too many years at once (rate limiting)
-	if config.endYear-config.startYear > 5 {
-		return fmt.Errorf("year range too large (max 5 years), got %d years", config.endYear-config.startYear+1)
+	if config.EndYear-config.StartYear > 5 {
+		return fmt.Errorf("year range too large (max 5 years), got %d years", config.EndYear-config.StartYear+1)
 	}
 
 	return nil
 }
 
 // getCacheFilePath returns the cache file path
-func getCacheFilePath(config *Config) string {
-	if config.cacheFile != "" {
-		return config.cacheFile
+func getCacheFilePath(config *model.Config) string {
+	if config.CacheFile != "" {
+		return config.CacheFile
 	}
 	return "data/holidays.json"
 }
