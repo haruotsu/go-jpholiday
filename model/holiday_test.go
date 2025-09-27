@@ -99,8 +99,8 @@ func TestHoliday_NameField(t *testing.T) {
 func TestHoliday_JSONSerialization(t *testing.T) {
 	date := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 	holiday := Holiday{
-		Date: date,
-		Name: "元日",
+		Date:        date,
+		Name:        "元日",
 		Description: "新年を祝う日",
 	}
 
