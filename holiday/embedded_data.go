@@ -6,7 +6,6 @@ import (
 	"github.com/haruotsu/go-jpholiday/model"
 )
 
-// getDefaultHolidayData returns a basic set of holiday data for fallback
 func getDefaultHolidayData() *model.HolidayCache {
 	now := time.Now()
 	holidays := map[string]model.Holiday{

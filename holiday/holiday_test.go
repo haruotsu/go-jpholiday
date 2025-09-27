@@ -7,7 +7,6 @@ import (
 	"github.com/haruotsu/go-jpholiday/model"
 )
 
-// テスト用のモックデータを作成
 func setupTestHolidayCache() *model.HolidayCache {
 	cache := &model.HolidayCache{
 		LastUpdated: time.Now(),
@@ -43,7 +42,6 @@ func setupTestHolidayCache() *model.HolidayCache {
 }
 
 func TestIsHoliday_WithHolidayDate(t *testing.T) {
-	// IsHoliday: 祝日の日付でtrueを返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
@@ -54,28 +52,24 @@ func TestIsHoliday_WithHolidayDate(t *testing.T) {
 }
 
 func TestIsHoliday_WithWeekday(t *testing.T) {
-	// IsHoliday: 平日の日付でfalseを返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
-	testDate := time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC) // 2024年1月2日（火）
+	testDate := time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)
 	if IsHoliday(testDate) {
 		t.Errorf("expected false for weekday %v, got true", testDate)
 	}
 }
 
 func TestIsHoliday_WithWeekend(t *testing.T) {
-	// IsHoliday: 土日でもfalseを返す（祝日ではないため）
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
-	// 2024年1月6日（土）
 	saturday := time.Date(2024, 1, 6, 0, 0, 0, 0, time.UTC)
 	if IsHoliday(saturday) {
 		t.Errorf("expected false for Saturday %v, got true", saturday)
 	}
 
-	// 2024年1月7日（日）
 	sunday := time.Date(2024, 1, 7, 0, 0, 0, 0, time.UTC)
 	if IsHoliday(sunday) {
 		t.Errorf("expected false for Sunday %v, got true", sunday)
@@ -83,7 +77,6 @@ func TestIsHoliday_WithWeekend(t *testing.T) {
 }
 
 func TestGetHolidayName_WithHolidayDate(t *testing.T) {
-	// GetHolidayName: 祝日の名前を返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
@@ -96,7 +89,6 @@ func TestGetHolidayName_WithHolidayDate(t *testing.T) {
 }
 
 func TestGetHolidayName_WithWeekday(t *testing.T) {
-	// GetHolidayName: 平日で空文字を返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
@@ -108,34 +100,30 @@ func TestGetHolidayName_WithWeekday(t *testing.T) {
 }
 
 func TestGetHolidaysInYear_WithDataExists(t *testing.T) {
-	// GetHolidaysInYear: 指定年の全祝日を返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
 	holidays := GetHolidaysInYear(2024)
-	if len(holidays) != 4 { // 2024年のテストデータには4つの祝日がある
+	if len(holidays) != 4 {
 		t.Errorf("expected 4 holidays in 2024, got %d", len(holidays))
 	}
 
-	// 最初の祝日が元日であることを確認
 	if len(holidays) > 0 && holidays[0].Name != "元日" {
 		t.Errorf("expected first holiday to be '元日', got '%s'", holidays[0].Name)
 	}
 }
 
 func TestGetHolidaysInYear_WithNoData(t *testing.T) {
-	// GetHolidaysInYear: データがない年で空配列を返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
-	holidays := GetHolidaysInYear(2023) // 2023年のデータはない
+	holidays := GetHolidaysInYear(2023)
 	if len(holidays) != 0 {
 		t.Errorf("expected empty array for year with no data, got %d holidays", len(holidays))
 	}
 }
 
 func TestGetHolidaysInRange_WithHolidays(t *testing.T) {
-	// GetHolidaysInRange: 指定期間の祝日を返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
@@ -143,13 +131,12 @@ func TestGetHolidaysInRange_WithHolidays(t *testing.T) {
 	end := time.Date(2024, 3, 31, 0, 0, 0, 0, time.UTC)
 
 	holidays := GetHolidaysInRange(start, end)
-	if len(holidays) != 3 { // 1月1日、2月11日、2月12日の3つ
+	if len(holidays) != 3 {
 		t.Errorf("expected 3 holidays in range, got %d", len(holidays))
 	}
 }
 
 func TestGetHolidaysInRange_WithNoHolidays(t *testing.T) {
-	// GetHolidaysInRange: 期間内に祝日がない場合空配列を返す
 	cache := setupTestHolidayCache()
 	SetCache(cache)
 
