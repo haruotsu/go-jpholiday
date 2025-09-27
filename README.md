@@ -1,18 +1,23 @@
-# go-jpholiday
+# go-jpholiday 🎌🌸
 
-Google Calendar APIを使用して日本の祝日を判定するGoライブラリです。
+A Go library for determining Japanese holidays using the Google Calendar API.
+
+Holiday data is automatically updated every month via GitHub Actions, ensuring you always have the latest Japanese holiday information without any manual intervention!
 
 [![Test](https://github.com/haruotsu/go-jpholiday/actions/workflows/test.yml/badge.svg)](https://github.com/haruotsu/go-jpholiday/actions/workflows/test.yml)
+[![Update Holidays](https://github.com/haruotsu/go-jpholiday/actions/workflows/update-holidays.yml/badge.svg)](https://github.com/haruotsu/go-jpholiday/actions/workflows/update-holidays.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/haruotsu/go-jpholiday.svg)](https://pkg.go.dev/github.com/haruotsu/go-jpholiday)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Report Card](https://goreportcard.com/badge/github.com/haruotsu/go-jpholiday)](https://goreportcard.com/report/github.com/haruotsu/go-jpholiday)
 
-## インストール
+## Installation
 
 ```bash
 go get github.com/haruotsu/go-jpholiday
 ```
 
-## 使い方
+
+## Quick Start
 
 ```go
 package main
@@ -24,165 +29,188 @@ import (
 )
 
 func main() {
-
-    // 特定の日付が祝日かどうか判定
+    // Check if a date is a holiday
     date := time.Date(2024, 1, 1, 0, 0, 0, 0, time.Local)
     if holiday.IsHoliday(date) {
-        fmt.Printf("%s は祝日です: %s\n", date.Format("2006-01-02"), holiday.GetHolidayName(date))
+        fmt.Printf("%s is a holiday: %s\n",
+            date.Format("2006-01-02"),
+            holiday.GetHolidayName(date))
     }
-    // 出力: 2024-01-01 は祝日です: 元日
+    // Output: 2024-01-01 is a holiday: 元日
 
-    // 年の全祝日を取得
+    // Get all holidays for a year
     holidays := holiday.GetHolidaysInYear(2024)
-    fmt.Printf("2024年の祝日数: %d\n", len(holidays))
-    for _, h := range holidays[:3] { // 最初の3つだけ表示
-        fmt.Printf("  %s: %s\n", h.Date.Format("2006-01-02"), h.Name)
-    }
+    fmt.Printf("Number of holidays in 2024: %d\n", len(holidays))
 
-    // 期間内の祝日を取得
+    // Get holidays in a date range (e.g., Golden Week)
     start := time.Date(2024, 4, 29, 0, 0, 0, 0, time.Local)
     end := time.Date(2024, 5, 5, 0, 0, 0, 0, time.Local)
     gwHolidays := holiday.GetHolidaysInRange(start, end)
-    fmt.Printf("\nゴールデンウィーク期間の祝日:\n")
     for _, h := range gwHolidays {
-        fmt.Printf("  %s: %s\n", h.Date.Format("2006-01-02"), h.Name)
+        fmt.Printf("  %s: %s\n",
+            h.Date.Format("2006-01-02"),
+            h.Name)
     }
 }
 ```
 
-## API
 
-### 主要な関数
+## Data Management
 
-#### 祝日判定
-- `IsHoliday(date time.Time) bool` - 指定した日付が祝日かどうかを判定
-- `GetHolidayName(date time.Time) string` - 指定した日付の祝日名を取得（祝日でない場合は空文字列）
+### Holiday Data Source
 
-#### 祝日リストの取得
-- `GetHolidaysInYear(year int) []Holiday` - 指定した年の全祝日を取得
-- `GetHolidaysInRange(start, end time.Time) []Holiday` - 指定した期間の祝日を取得
+This library retrieves Japanese national holiday data from the official Google Calendar API (Calendar ID: `ja.japanese.official#holiday@group.v.calendar.google.com`). This calendar is maintained by Google and contains all official Japanese public holidays, including:
 
-#### キャッシュ管理
-- `LoadCache(filePath string) (*HolidayCache, error)` - キャッシュファイルから祝日データを読み込み
-- `SaveCache(filePath string, cache *HolidayCache) error` - 祝日データをキャッシュファイルに保存
-- `SetCache(cache *HolidayCache)` - 使用するキャッシュを設定
-- `IsStale(cache *HolidayCache, maxAge time.Duration) bool` - キャッシュが古いかどうかを判定
+- Regular national holidays (元日, 成人の日, etc.)
+- Special holidays (天皇即位の日, etc.)
+- Substitute holidays (振替休日)
 
-### データ構造
+### Data Storage & Caching
+- **Data Retention**: By default, the library fetches and stores 2 years of holiday data (current year + next year)
+- **Cache Format**: JSON format with date keys ("YYYY-MM-DD") for O(1) lookup performance
 
-```go
-// Holiday represents a Japanese holiday
-type Holiday struct {
-    Date        time.Time `json:"date"`
-    Name        string    `json:"name"`
-    Description string    `json:"description,omitempty"`
-}
+### Update Schedule
 
-// HolidayCache represents cached holiday data
-type HolidayCache struct {
-    LastUpdated time.Time          `json:"last_updated"`
-    Holidays    map[string]Holiday `json:"holidays"` // Key: "YYYY-MM-DD"
-}
-```
+| Update Type | Frequency | Method | Description |
+|------------|-----------|---------|-------------|
+| **Automatic** | Monthly (1st day) | GitHub Actions | Ensures holiday data is always current |
+| **On-demand** | Anytime | CLI tool | Update manually when needed |
+| **Package Release** | With new versions | Embedded data | Pre-bundled data updated with each release |
 
-## CLIツール
+### Data Freshness
 
-祝日データを更新するためのCLIツールが含まれています。
+- Holiday data is typically published by the Japanese government 1-2 years in advance
+- Special holidays (like imperial ceremonies) may be announced with shorter notice
+- The automatic monthly updates ensure any newly announced holidays are captured promptly
 
-### インストール
+### Automatic Updates
+
+Holiday data is automatically updated through multiple mechanisms:
+
+1. GitHub Actions (Monthly): Runs on the 1st of every month at 00:00 UTC
+2. Package Updates: New releases include the latest holiday data
+3. Runtime Fallback: If no cached data exists, the library uses embedded defaults
+
+### Installation
 
 ```bash
 go install github.com/haruotsu/go-jpholiday/cmd/update-holidays@latest
 ```
 
-### 使い方
+### Usage
 
 ```bash
-# 環境変数でAPIキーを設定
+# Set your Google Calendar API key
 export GOOGLE_API_KEY=your-google-calendar-api-key
 
-# 現在年と翌年の祝日データを取得
+# Fetch holidays for current and next year
 update-holidays
 
-# 特定の年範囲を指定
+# Specify a custom year range
 update-holidays -start-year 2024 -end-year 2025
 
-# ドライラン（実際には更新しない）
+# Dry run (preview without updating)
 update-holidays -dry-run
 
-# デバッグモード
+# Enable debug output
 update-holidays -debug
-
-# ヘルプを表示
-update-holidays -help
 ```
 
-### オプション
+### CLI Options
 
-- `-start-year`: 取得開始年（デフォルト: 現在年）
-- `-end-year`: 取得終了年（デフォルト: 現在年+1）
-- `-cache-file`: キャッシュファイルのパス（デフォルト: data/holidays.json）
-- `-dry-run`: 実際には更新せず、取得する祝日を表示
-- `-debug`: デバッグ情報を表示
-- `-help, -h`: ヘルプを表示
-- `-version, -v`: バージョン情報を表示
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-start-year` | Start year for fetching | Current year |
+| `-end-year` | End year for fetching | Current year + 1 |
+| `-cache-file` | Path to cache file | `data/holidays.json` |
+| `-dry-run` | Preview changes without updating | `false` |
+| `-debug` | Enable debug output | `false` |
+| `-help, -h` | Show help message | - |
+| `-version, -v` | Show version information | - |
 
-## 開発
 
-### セットアップ
+### Setup
 
 ```bash
-# プロジェクトのセットアップ
+# Clone the repository
+git clone https://github.com/haruotsu/go-jpholiday.git
+cd go-jpholiday
+
+# Install dependencies
 make setup
 
-# テスト実行
+# Run tests
 make test
 
-# 静的解析とフォーマット
-make lint
-make fmt
-
-# 全チェック実行
-make check
-
-# カバレッジ付きテスト
+# Run with coverage
 make test-coverage
+
+# Run linters
+make lint
+
+# Format code
+make fmt
 ```
 
-### 祝日データの更新
+### Updating Holiday Data
 
-Google Calendar APIキーを設定後、以下のコマンドで祝日データを更新できます：
+#### Manual Update
+
+To update the holiday data manually:
 
 ```bash
 export GOOGLE_API_KEY=your-api-key
-go run cmd/update-holidays/main.go
-# または
 make run
+# Or directly:
+go run cmd/update-holidays/main.go
 ```
 
-GitHub Actionsで毎月1日に自動更新されます。
 
-## コントリビューション
+#### Custom Year Range
 
-プルリクエストを歓迎します！以下の手順で貢献してください：
+You can fetch holiday data for specific years:
 
-1. このリポジトリをフォーク
-2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. テストを追加・更新
-4. 変更をコミット (`git commit -m 'Add amazing feature'`)
-5. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-6. プルリクエストを作成
+```bash
+# Fetch 5 years of data (2024-2028)
+update-holidays -start-year 2024 -end-year 2028
+```
 
-詳細は[DEVELOPMENT.md](DEVELOPMENT.md)をご覧ください。
+**Note**: The Google Calendar API limits requests to prevent abuse. Fetching more than 5 years at once may result in rate limiting.
 
-## ライセンス
 
-MIT License - 詳細は[LICENSE](LICENSE)をご覧ください。
+## Contributing
 
-## 作者
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Add or update tests as needed
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to your branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+For more details, see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Holiday data sourced from Google Calendar API (Japanese public holidays)
+- Inspired by similar libraries in other languages
+
+## Support
+
+- [Report bugs](https://github.com/haruotsu/go-jpholiday/issues)
+- [Request features](https://github.com/haruotsu/go-jpholiday/issues)
+- [Read the docs](https://pkg.go.dev/github.com/haruotsu/go-jpholiday)
+
+## Author
 
 [@haruotsu](https://github.com/haruotsu)
 
 ---
 
-**注意**: このライブラリはGoogle Calendar APIに依存しています。商用利用の場合は、Google Calendar APIの利用規約とレート制限をご確認ください。
+**Note**: This library depends on the Google Calendar API for fetching holiday data. Please review the [Google Calendar API Terms of Service](https://developers.google.com/terms) and rate limits for commercial use.
