@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 func TestLoadCache_ValidFile(t *testing.T) {
@@ -20,9 +22,9 @@ func TestLoadCache_ValidFile(t *testing.T) {
 	cacheFile := filepath.Join(tmpDir, "holidays.json")
 
 	// Create test cache data
-	testCache := HolidayCache{
+	testCache := model.HolidayCache{
 		LastUpdated: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
-		Holidays: map[string]Holiday{
+		Holidays: map[string]model.Holiday{
 			"2024-01-01": {
 				Date:        time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
 				Name:        "元日",
@@ -109,9 +111,9 @@ func TestSaveCache_ValidData(t *testing.T) {
 
 	cacheFile := filepath.Join(tmpDir, "save_test.json")
 
-	testCache := &HolidayCache{
+	testCache := &model.HolidayCache{
 		LastUpdated: time.Date(2024, 2, 1, 0, 0, 0, 0, time.UTC),
-		Holidays: map[string]Holiday{
+		Holidays: map[string]model.Holiday{
 			"2024-02-11": {
 				Date:        time.Date(2024, 2, 11, 0, 0, 0, 0, time.UTC),
 				Name:        "建国記念の日",
@@ -131,7 +133,7 @@ func TestSaveCache_ValidData(t *testing.T) {
 		t.Fatalf("failed to read saved file: %v", err)
 	}
 
-	var savedCache HolidayCache
+	var savedCache model.HolidayCache
 	if err := json.Unmarshal(data, &savedCache); err != nil {
 		t.Fatalf("failed to unmarshal saved data: %v", err)
 	}
@@ -156,9 +158,9 @@ func TestSaveCache_CreateDirectory(t *testing.T) {
 	// Create nested directory path that doesn't exist
 	cacheFile := filepath.Join(tmpDir, "new", "directory", "cache.json")
 
-	testCache := &HolidayCache{
+	testCache := &model.HolidayCache{
 		LastUpdated: time.Now(),
-		Holidays:    make(map[string]Holiday),
+		Holidays:    make(map[string]model.Holiday),
 	}
 
 	// Test SaveCache with non-existent directory
@@ -175,9 +177,9 @@ func TestSaveCache_CreateDirectory(t *testing.T) {
 func TestUpdateCache_NewData(t *testing.T) {
 	// UpdateCache: 新しいデータでキャッシュを更新できる
 	// Setup initial cache
-	cache := &HolidayCache{
+	cache := &model.HolidayCache{
 		LastUpdated: time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
-		Holidays: map[string]Holiday{
+		Holidays: map[string]model.Holiday{
 			"2024-01-01": {
 				Date:        time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
 				Name:        "元日",
@@ -187,7 +189,7 @@ func TestUpdateCache_NewData(t *testing.T) {
 	}
 
 	// New holidays to add
-	newHolidays := []Holiday{
+	newHolidays := []model.Holiday{
 		{
 			Date:        time.Date(2024, 2, 11, 0, 0, 0, 0, time.UTC),
 			Name:        "建国記念の日",
@@ -228,9 +230,9 @@ func TestUpdateCache_NewData(t *testing.T) {
 func TestIsStale_OldCache(t *testing.T) {
 	// IsStale: 古いキャッシュを検出できる
 	oldTime := time.Now().AddDate(0, -2, 0) // 2 months ago
-	cache := &HolidayCache{
+	cache := &model.HolidayCache{
 		LastUpdated: oldTime,
-		Holidays:    make(map[string]Holiday),
+		Holidays:    make(map[string]model.Holiday),
 	}
 
 	if !IsStale(cache, 30*24*time.Hour) { // 30 days threshold
@@ -241,9 +243,9 @@ func TestIsStale_OldCache(t *testing.T) {
 func TestIsStale_FreshCache(t *testing.T) {
 	// IsStale: 新しいキャッシュは古くないと判定
 	recentTime := time.Now().Add(-1 * time.Hour) // 1 hour ago
-	cache := &HolidayCache{
+	cache := &model.HolidayCache{
 		LastUpdated: recentTime,
-		Holidays:    make(map[string]Holiday),
+		Holidays:    make(map[string]model.Holiday),
 	}
 
 	if IsStale(cache, 30*24*time.Hour) { // 30 days threshold

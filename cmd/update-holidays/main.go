@@ -9,6 +9,7 @@ import (
 
 	"github.com/haruotsu/go-jpholiday/fetcher"
 	"github.com/haruotsu/go-jpholiday/holiday"
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 var (
@@ -88,8 +89,8 @@ func main() {
 	if err != nil {
 		if os.IsNotExist(err) {
 			// Create new cache if file doesn't exist
-			cache = &holiday.HolidayCache{
-				Holidays: make(map[string]holiday.Holiday),
+			cache = &model.HolidayCache{
+				Holidays: make(map[string]model.Holiday),
 			}
 			if config.debug {
 				log.Printf("Creating new cache file: %s", cacheFilePath)

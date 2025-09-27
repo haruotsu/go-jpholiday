@@ -3,13 +3,15 @@ package holiday
 import (
 	"testing"
 	"time"
+
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 // テスト用のモックデータを作成
-func setupTestHolidayCache() *HolidayCache {
-	cache := &HolidayCache{
+func setupTestHolidayCache() *model.HolidayCache {
+	cache := &model.HolidayCache{
 		LastUpdated: time.Now(),
-		Holidays: map[string]Holiday{
+		Holidays: map[string]model.Holiday{
 			"2024-01-01": {
 				Date:        time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
 				Name:        "元日",
