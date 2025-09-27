@@ -3,10 +3,11 @@ package main
 import (
 	"os"
 	"testing"
+
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 func TestGetAPIKey_FromEnvVar(t *testing.T) {
-	// 環境変数からAPIキーを取得
 	testAPIKey := "test-api-key-123"
 	os.Setenv("GOOGLE_API_KEY", testAPIKey)
 	defer os.Unsetenv("GOOGLE_API_KEY")
@@ -18,7 +19,6 @@ func TestGetAPIKey_FromEnvVar(t *testing.T) {
 }
 
 func TestGetAPIKey_NotSet(t *testing.T) {
-	// APIキーが設定されていない場合
 	os.Unsetenv("GOOGLE_API_KEY")
 
 	apiKey := getAPIKey()
@@ -28,10 +28,9 @@ func TestGetAPIKey_NotSet(t *testing.T) {
 }
 
 func TestValidateFlags_ValidYear(t *testing.T) {
-	// 有効な年の検証
-	config := &Config{
-		startYear: 2024,
-		endYear:   2025,
+	config := &model.Config{
+		StartYear: 2024,
+		EndYear:   2025,
 	}
 
 	if err := validateFlags(config); err != nil {
@@ -40,10 +39,9 @@ func TestValidateFlags_ValidYear(t *testing.T) {
 }
 
 func TestValidateFlags_InvalidYearRange(t *testing.T) {
-	// 無効な年の範囲
-	config := &Config{
-		startYear: 2025,
-		endYear:   2024,
+	config := &model.Config{
+		StartYear: 2025,
+		EndYear:   2024,
 	}
 
 	if err := validateFlags(config); err == nil {
@@ -52,10 +50,9 @@ func TestValidateFlags_InvalidYearRange(t *testing.T) {
 }
 
 func TestValidateFlags_TooManyYears(t *testing.T) {
-	// 年の範囲が大きすぎる場合
-	config := &Config{
-		startYear: 2020,
-		endYear:   2030, // 10年間は大きすぎる
+	config := &model.Config{
+		StartYear: 2020,
+		EndYear:   2036,
 	}
 
 	if err := validateFlags(config); err == nil {
@@ -64,9 +61,8 @@ func TestValidateFlags_TooManyYears(t *testing.T) {
 }
 
 func TestGetCacheFilePath_Default(t *testing.T) {
-	// デフォルトのキャッシュファイルパス
-	config := &Config{
-		cacheFile: "",
+	config := &model.Config{
+		CacheFile: "",
 	}
 
 	path := getCacheFilePath(config)
@@ -77,10 +73,9 @@ func TestGetCacheFilePath_Default(t *testing.T) {
 }
 
 func TestGetCacheFilePath_Custom(t *testing.T) {
-	// カスタムキャッシュファイルパス
 	customPath := "/tmp/custom_holidays.json"
-	config := &Config{
-		cacheFile: customPath,
+	config := &model.Config{
+		CacheFile: customPath,
 	}
 
 	path := getCacheFilePath(config)
@@ -90,7 +85,6 @@ func TestGetCacheFilePath_Custom(t *testing.T) {
 }
 
 func TestPrintUsage(t *testing.T) {
-	// printUsage関数がパニックしないことを確認
 	defer func() {
 		if r := recover(); r != nil {
 			t.Errorf("printUsage panicked: %v", r)
@@ -101,12 +95,12 @@ func TestPrintUsage(t *testing.T) {
 }
 
 func TestVersionCheck(t *testing.T) {
-	// バージョン情報が適切に設定されていることを確認
+	// version変数が存在し、デフォルト値を持つことを確認
 	if version == "" {
-		version = "dev" // テスト環境ではデフォルト値を設定
+		t.Error("version should have default value 'dev'")
 	}
 
-	if version == "" {
-		t.Error("version should not be empty")
+	if version != "dev" {
+		t.Errorf("expected version to be 'dev', got '%s'", version)
 	}
 }

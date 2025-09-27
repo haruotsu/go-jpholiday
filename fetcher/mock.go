@@ -3,12 +3,12 @@ package fetcher
 import (
 	"fmt"
 
-	"github.com/haruotsu/go-jpholiday/holiday"
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 // MockFetcher is a mock implementation of Fetcher for testing
 type MockFetcher struct {
-	Holidays    []holiday.Holiday
+	Holidays    []model.Holiday
 	ShouldError bool
 	ErrorMsg    string
 	RetryCount  int
@@ -16,7 +16,7 @@ type MockFetcher struct {
 }
 
 // FetchHolidays implements the Fetcher interface for testing
-func (m *MockFetcher) FetchHolidays(year int) ([]holiday.Holiday, error) {
+func (m *MockFetcher) FetchHolidays(year int) ([]model.Holiday, error) {
 	m.CallCount++
 
 	if m.ShouldError {
@@ -26,7 +26,7 @@ func (m *MockFetcher) FetchHolidays(year int) ([]holiday.Holiday, error) {
 	}
 
 	// Filter holidays by year
-	var yearHolidays []holiday.Holiday
+	var yearHolidays []model.Holiday
 	for _, h := range m.Holidays {
 		if h.Date.Year() == year {
 			yearHolidays = append(yearHolidays, h)
@@ -37,7 +37,7 @@ func (m *MockFetcher) FetchHolidays(year int) ([]holiday.Holiday, error) {
 }
 
 // FetchHolidaysRange implements the Fetcher interface for testing
-func (m *MockFetcher) FetchHolidaysRange(startYear, endYear int) ([]holiday.Holiday, error) {
+func (m *MockFetcher) FetchHolidaysRange(startYear, endYear int) ([]model.Holiday, error) {
 	m.CallCount++
 
 	if m.ShouldError {
@@ -45,7 +45,7 @@ func (m *MockFetcher) FetchHolidaysRange(startYear, endYear int) ([]holiday.Holi
 	}
 
 	// Filter holidays by year range
-	var rangeHolidays []holiday.Holiday
+	var rangeHolidays []model.Holiday
 	for _, h := range m.Holidays {
 		year := h.Date.Year()
 		if year >= startYear && year <= endYear {
