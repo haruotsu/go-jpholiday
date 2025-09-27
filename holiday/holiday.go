@@ -1,14 +1,15 @@
 package holiday
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 var (
-	cache   *HolidayCache
+	cache   *model.HolidayCache
 	cacheMu sync.RWMutex
 )
 
@@ -45,14 +46,14 @@ func EnsureInitialized() {
 }
 
 // SetCache sets the holiday cache
-func SetCache(c *HolidayCache) {
+func SetCache(c *model.HolidayCache) {
 	cacheMu.Lock()
 	defer cacheMu.Unlock()
 	cache = c
 }
 
 // GetCache returns the current holiday cache
-func GetCache() *HolidayCache {
+func GetCache() *model.HolidayCache {
 	cacheMu.RLock()
 	defer cacheMu.RUnlock()
 	return cache
@@ -107,17 +108,17 @@ func GetHolidayName(date time.Time) string {
 }
 
 // GetHolidaysInYear returns all holidays in the specified year
-func GetHolidaysInYear(year int) []Holiday {
+func GetHolidaysInYear(year int) []model.Holiday {
 	ensureCacheLoaded()
 
 	cacheMu.RLock()
 	defer cacheMu.RUnlock()
 
 	if cache == nil {
-		return []Holiday{}
+		return []model.Holiday{}
 	}
 
-	var holidays []Holiday
+	var holidays []model.Holiday
 	startOfYear := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
 	endOfYear := time.Date(year, 12, 31, 23, 59, 59, 999999999, time.UTC)
 
@@ -136,17 +137,17 @@ func GetHolidaysInYear(year int) []Holiday {
 }
 
 // GetHolidaysInRange returns holidays within the specified date range
-func GetHolidaysInRange(start, end time.Time) []Holiday {
+func GetHolidaysInRange(start, end time.Time) []model.Holiday {
 	ensureCacheLoaded()
 
 	cacheMu.RLock()
 	defer cacheMu.RUnlock()
 
 	if cache == nil {
-		return []Holiday{}
+		return []model.Holiday{}
 	}
 
-	var holidays []Holiday
+	var holidays []model.Holiday
 	// Normalize times to beginning of day for comparison
 	startDay := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
 	endDay := time.Date(end.Year(), end.Month(), end.Day(), 23, 59, 59, 999999999, end.Location())
@@ -163,9 +164,4 @@ func GetHolidaysInRange(start, end time.Time) []Holiday {
 	})
 
 	return holidays
-}
-
-// formatDateKey formats a date as "YYYY-MM-DD" for use as a map key
-func formatDateKey(date time.Time) string {
-	return fmt.Sprintf("%04d-%02d-%02d", date.Year(), date.Month(), date.Day())
 }

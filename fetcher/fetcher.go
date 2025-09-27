@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/haruotsu/go-jpholiday/holiday"
+	"github.com/haruotsu/go-jpholiday/model"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
 )
@@ -40,8 +40,8 @@ func isOfficialHoliday(description string) bool {
 
 // Fetcher interface defines methods for fetching holiday data
 type Fetcher interface {
-	FetchHolidays(year int) ([]holiday.Holiday, error)
-	FetchHolidaysRange(startYear, endYear int) ([]holiday.Holiday, error)
+	FetchHolidays(year int) ([]model.Holiday, error)
+	FetchHolidaysRange(startYear, endYear int) ([]model.Holiday, error)
 }
 
 // GoogleCalendarFetcher implements the Fetcher interface using Google Calendar API
@@ -75,7 +75,7 @@ func (f *GoogleCalendarFetcher) initService() error {
 }
 
 // FetchHolidays fetches holidays for a specific year
-func (f *GoogleCalendarFetcher) FetchHolidays(year int) ([]holiday.Holiday, error) {
+func (f *GoogleCalendarFetcher) FetchHolidays(year int) ([]model.Holiday, error) {
 	if err := f.initService(); err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (f *GoogleCalendarFetcher) FetchHolidays(year int) ([]holiday.Holiday, erro
 	}
 
 	// Convert calendar events to our Holiday struct
-	var holidays []holiday.Holiday
+	var holidays []model.Holiday
 	for _, event := range events.Items {
 		if event.Start == nil || event.Start.Date == "" {
 			continue
@@ -126,7 +126,7 @@ func (f *GoogleCalendarFetcher) FetchHolidays(year int) ([]holiday.Holiday, erro
 		description := strings.TrimSpace(event.Description)
 		if isOfficialHoliday(description) {
 			// Create Holiday struct
-			h := holiday.Holiday{
+			h := model.Holiday{
 				Date:        eventDate,
 				Name:        event.Summary,
 				Description: description,
@@ -140,8 +140,8 @@ func (f *GoogleCalendarFetcher) FetchHolidays(year int) ([]holiday.Holiday, erro
 }
 
 // FetchHolidaysRange fetches holidays for a range of years
-func (f *GoogleCalendarFetcher) FetchHolidaysRange(startYear, endYear int) ([]holiday.Holiday, error) {
-	var allHolidays []holiday.Holiday
+func (f *GoogleCalendarFetcher) FetchHolidaysRange(startYear, endYear int) ([]model.Holiday, error) {
+	var allHolidays []model.Holiday
 
 	for year := startYear; year <= endYear; year++ {
 		holidays, err := f.FetchHolidays(year)

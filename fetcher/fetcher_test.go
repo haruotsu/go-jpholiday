@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/haruotsu/go-jpholiday/holiday"
+	"github.com/haruotsu/go-jpholiday/model"
 )
 
 func TestNewFetcher_WithAPIKey(t *testing.T) {
@@ -35,7 +35,7 @@ func TestNewFetcher_WithEmptyAPIKey(t *testing.T) {
 func TestMockFetcher_FetchHolidays(t *testing.T) {
 	// モック実装が正しく動作する
 	mockFetcher := &MockFetcher{
-		Holidays: []holiday.Holiday{
+		Holidays: []model.Holiday{
 			{
 				Date:        time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
 				Name:        "元日",
@@ -87,7 +87,7 @@ func TestMockFetcher_FetchHolidaysWithError(t *testing.T) {
 func TestMockFetcher_FetchHolidaysRange(t *testing.T) {
 	// FetchHolidaysRange: 複数年の祝日を取得できる
 	mockFetcher := &MockFetcher{
-		Holidays: []holiday.Holiday{
+		Holidays: []model.Holiday{
 			{
 				Date:        time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
 				Name:        "元日",
