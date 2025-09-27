@@ -134,8 +134,8 @@ func validateFlags(config *model.Config) error {
 	}
 
 	// Prevent fetching too many years at once (rate limiting)
-	if config.EndYear-config.StartYear > 5 {
-		return fmt.Errorf("year range too large (max 5 years), got %d years", config.EndYear-config.StartYear+1)
+	if config.EndYear-config.StartYear > 10 {
+		return fmt.Errorf("year range too large (max 10 years), got %d years", config.EndYear-config.StartYear+1)
 	}
 
 	return nil
