@@ -2,6 +2,8 @@
 
 A Go library for determining Japanese holidays using the Google Calendar API.
 
+**日本語版は[こちら](docs/README_ja.md)をご覧ください。**
+
 Holiday data is automatically updated every month via GitHub Actions, ensuring you always have the latest Japanese holiday information without any manual intervention!
 
 [![Test](https://github.com/haruotsu/go-jpholiday/actions/workflows/test.yml/badge.svg)](https://github.com/haruotsu/go-jpholiday/actions/workflows/test.yml)
