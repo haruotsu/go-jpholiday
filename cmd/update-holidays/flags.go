@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/haruotsu/go-jpholiday/holiday"
 	"github.com/haruotsu/go-jpholiday/model"
 )
 
@@ -12,8 +13,9 @@ import (
 func parseFlags() *model.Config {
 	config := &model.Config{}
 
-	flag.IntVar(&config.StartYear, "start-year", time.Now().Year()-5, "Start year for fetching holidays")
-	flag.IntVar(&config.EndYear, "end-year", time.Now().Year()+5, "End year for fetching holidays")
+	currentYear := time.Now().Year()
+	flag.IntVar(&config.StartYear, "start-year", currentYear-holiday.DefaultYearRange, "Start year for fetching holidays")
+	flag.IntVar(&config.EndYear, "end-year", currentYear+holiday.DefaultYearRange, "End year for fetching holidays")
 	flag.StringVar(&config.CacheFile, "cache-file", "", "Path to cache file (default: data/holidays.json)")
 	flag.BoolVar(&config.DryRun, "dry-run", false, "Print what would be done without making changes")
 	flag.BoolVar(&config.Debug, "debug", false, "Enable debug output")
@@ -34,8 +36,8 @@ func validateFlags(config *model.Config) error {
 	}
 
 	// Prevent fetching too many years at once (rate limiting)
-	if config.EndYear-config.StartYear > 15 {
-		return fmt.Errorf("year range too large (max 15 years), got %d years", config.EndYear-config.StartYear+1)
+	if config.EndYear-config.StartYear > holiday.MaxYearRange {
+		return fmt.Errorf("year range too large (max %d years), got %d years", holiday.MaxYearRange, config.EndYear-config.StartYear+1)
 	}
 
 	return nil

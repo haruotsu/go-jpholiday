@@ -3,46 +3,10 @@ package holiday
 import (
 	"testing"
 	"time"
-
-	"github.com/haruotsu/go-jpholiday/model"
 )
 
-func setupTestHolidayCache() *model.HolidayCache {
-	cache := &model.HolidayCache{
-		LastUpdated: time.Now(),
-		Holidays: map[string]model.Holiday{
-			"2024-01-01": {
-				Date:        time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
-				Name:        "元日",
-				Description: "新年の始まり",
-			},
-			"2024-02-11": {
-				Date:        time.Date(2024, 2, 11, 0, 0, 0, 0, time.UTC),
-				Name:        "建国記念の日",
-				Description: "建国記念の日",
-			},
-			"2024-02-12": {
-				Date:        time.Date(2024, 2, 12, 0, 0, 0, 0, time.UTC),
-				Name:        "振替休日",
-				Description: "建国記念の日の振替休日",
-			},
-			"2024-05-03": {
-				Date:        time.Date(2024, 5, 3, 0, 0, 0, 0, time.UTC),
-				Name:        "憲法記念日",
-				Description: "憲法記念日",
-			},
-			"2025-01-01": {
-				Date:        time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-				Name:        "元日",
-				Description: "新年の始まり",
-			},
-		},
-	}
-	return cache
-}
-
 func TestIsHoliday_WithHolidayDate(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	testDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -52,7 +16,7 @@ func TestIsHoliday_WithHolidayDate(t *testing.T) {
 }
 
 func TestIsHoliday_WithWeekday(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	testDate := time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)
@@ -62,7 +26,7 @@ func TestIsHoliday_WithWeekday(t *testing.T) {
 }
 
 func TestIsHoliday_WithWeekend(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	saturday := time.Date(2024, 1, 6, 0, 0, 0, 0, time.UTC)
@@ -77,7 +41,7 @@ func TestIsHoliday_WithWeekend(t *testing.T) {
 }
 
 func TestGetHolidayName_WithHolidayDate(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	testDate := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -89,7 +53,7 @@ func TestGetHolidayName_WithHolidayDate(t *testing.T) {
 }
 
 func TestGetHolidayName_WithWeekday(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	testDate := time.Date(2024, 1, 2, 0, 0, 0, 0, time.UTC)
@@ -100,7 +64,7 @@ func TestGetHolidayName_WithWeekday(t *testing.T) {
 }
 
 func TestGetHolidaysInYear_WithDataExists(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	holidays := GetHolidaysInYear(2024)
@@ -114,7 +78,7 @@ func TestGetHolidaysInYear_WithDataExists(t *testing.T) {
 }
 
 func TestGetHolidaysInYear_WithNoData(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	holidays := GetHolidaysInYear(2023)
@@ -124,7 +88,7 @@ func TestGetHolidaysInYear_WithNoData(t *testing.T) {
 }
 
 func TestGetHolidaysInRange_WithHolidays(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	start := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -137,7 +101,7 @@ func TestGetHolidaysInRange_WithHolidays(t *testing.T) {
 }
 
 func TestGetHolidaysInRange_WithNoHolidays(t *testing.T) {
-	cache := setupTestHolidayCache()
+	cache := NewTestHolidayCache()
 	SetCache(cache)
 
 	start := time.Date(2024, 3, 1, 0, 0, 0, 0, time.UTC)

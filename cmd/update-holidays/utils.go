@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/haruotsu/go-jpholiday/holiday"
 	"github.com/haruotsu/go-jpholiday/model"
 )
 
@@ -16,5 +17,5 @@ func getCacheFilePath(config *model.Config) string {
 	if config.CacheFile != "" {
 		return config.CacheFile
 	}
-	return "data/holidays.json"
+	return holiday.DefaultCacheFile
 }

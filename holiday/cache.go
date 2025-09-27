@@ -29,7 +29,7 @@ func LoadCache(filePath string) (*model.HolidayCache, error) {
 func SaveCache(filePath string, cache *model.HolidayCache) error {
 	// Create directory if it doesn't exist
 	dir := filepath.Dir(filePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, DirPermission); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
@@ -40,7 +40,7 @@ func SaveCache(filePath string, cache *model.HolidayCache) error {
 	}
 
 	// Write to file
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, FilePermission); err != nil {
 		return fmt.Errorf("failed to write cache file: %w", err)
 	}
 

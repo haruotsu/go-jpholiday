@@ -1,7 +1,6 @@
 package holiday
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -165,9 +164,4 @@ func GetHolidaysInRange(start, end time.Time) []model.Holiday {
 	})
 
 	return holidays
-}
-
-// formatDateKey formats a date as "YYYY-MM-DD" for use as a map key
-func formatDateKey(date time.Time) string {
-	return fmt.Sprintf("%04d-%02d-%02d", date.Year(), date.Month(), date.Day())
 }
