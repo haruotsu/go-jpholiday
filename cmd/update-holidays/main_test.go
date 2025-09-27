@@ -52,7 +52,7 @@ func TestValidateFlags_InvalidYearRange(t *testing.T) {
 func TestValidateFlags_TooManyYears(t *testing.T) {
 	config := &model.Config{
 		StartYear: 2020,
-		EndYear:   2031,
+		EndYear:   2036,
 	}
 
 	if err := validateFlags(config); err == nil {
