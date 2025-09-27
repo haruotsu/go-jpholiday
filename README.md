@@ -66,7 +66,7 @@ This library retrieves Japanese national holiday data from the official Google C
 - Substitute holidays (振替休日)
 
 ### Data Storage & Caching
-- **Data Retention**: By default, the library fetches and stores 2 years of holiday data (current year + next year)
+- **Data Retention**: By default, the library fetches and stores 11 years of holiday data (current year ±5 years)
 - **Cache Format**: JSON format with date keys ("YYYY-MM-DD") for O(1) lookup performance
 
 ### Update Schedule
@@ -103,11 +103,11 @@ go install github.com/haruotsu/go-jpholiday/cmd/update-holidays@latest
 # Set your Google Calendar API key
 export GOOGLE_API_KEY=your-google-calendar-api-key
 
-# Fetch holidays for current and next year
+# Fetch holidays for default range (current year ±5 years)
 update-holidays
 
 # Specify a custom year range
-update-holidays -start-year 2024 -end-year 2025
+update-holidays -start-year 2024 -end-year 2029
 
 # Dry run (preview without updating)
 update-holidays -dry-run
@@ -120,8 +120,8 @@ update-holidays -debug
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `-start-year` | Start year for fetching | Current year |
-| `-end-year` | End year for fetching | Current year + 1 |
+| `-start-year` | Start year for fetching | Current year - 5 |
+| `-end-year` | End year for fetching | Current year + 5 |
 | `-cache-file` | Path to cache file | `data/holidays.json` |
 | `-dry-run` | Preview changes without updating | `false` |
 | `-debug` | Enable debug output | `false` |
