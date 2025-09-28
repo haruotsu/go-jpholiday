@@ -6,6 +6,10 @@ A Go library for determining Japanese holidays using the Google Calendar API.
 
 Holiday data is automatically updated every month via GitHub Actions, ensuring you always have the latest Japanese holiday information without any manual intervention!
 
+- Holiday data is typically published by the Japanese government 1-2 years in advance
+- Special holidays (like imperial ceremonies) may be announced with shorter notice
+- The automatic monthly updates ensure any newly announced holidays are captured promptly
+
 [![Test](https://github.com/haruotsu/go-jpholiday/actions/workflows/test.yml/badge.svg)](https://github.com/haruotsu/go-jpholiday/actions/workflows/test.yml)
 [![Update Holidays](https://github.com/haruotsu/go-jpholiday/actions/workflows/update-holidays.yml/badge.svg)](https://github.com/haruotsu/go-jpholiday/actions/workflows/update-holidays.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/haruotsu/go-jpholiday.svg)](https://pkg.go.dev/github.com/haruotsu/go-jpholiday)
@@ -182,7 +186,7 @@ update-holidays -start-year 2024 -end-year 2028
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions!
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -191,7 +195,6 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 5. Push to your branch (`git push origin feature/amazing-feature`)
 6. Open a Pull Request
 
-For more details, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
 
 ## License
