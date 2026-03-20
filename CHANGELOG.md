@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.0.7](https://github.com/haruotsu/go-jpholiday/compare/v0.0.6...v0.0.7) - 2026-03-20
+- chore: update holidays data - 2026-03-20 by @github-actions[bot] in https://github.com/haruotsu/go-jpholiday/pull/17
+
 ## [v0.0.6](https://github.com/haruotsu/go-jpholiday/compare/v0.0.5...v0.0.6) - 2026-03-20
 - fix: update holidays via PR instead of direct push to main by @haruotsu in https://github.com/haruotsu/go-jpholiday/pull/14
 
