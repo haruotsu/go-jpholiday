@@ -18,6 +18,7 @@ on:
 permissions:
   contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   update-holidays:
@@ -67,14 +68,30 @@ jobs:
           echo "has_changes=true" >> $GITHUB_OUTPUT
         fi
 
-    - name: Commit and push if changed
+    - name: Create PR if changed
       if: steps.check_changes.outputs.has_changes == 'true' && github.event.inputs.dry_run != 'true'
       run: |
+        BRANCH="chore/update-holidays-$(date '+%Y-%m-%d')"
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
+        git checkout -b "$BRANCH"
         git add data/holidays.json
         git commit -m "chore: update holidays data - $(date '+%Y-%m-%d')"
-        git push
+        git push origin "$BRANCH"
+        gh pr create \
+          --title "chore: update holidays data - $(date '+%Y-%m-%d')" \
+          --body "## 祝日データの自動更新
+
+        Google Calendar APIから最新の祝日データを取得し、\`data/holidays.json\`を更新しました。
+
+        - 更新日時: $(date '+%Y-%m-%d %H:%M:%S UTC')
+        - トリガー: scheduled
+
+        このPRは自動生成されました。" \
+          --base main \
+          --head "$BRANCH"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create issue if update failed
       if: failure()
@@ -102,7 +119,7 @@ jobs:
               `,
               labels: ['bug', 'automated']
             });
-            console.log(`✅ Created issue #${issue.data.number}`);
+            console.log('✅ Created issue #' + issue.data.number);
           } catch (error) {
             console.error('❌ Failed to create issue:', error.message);
             console.log('ℹ️  Manual intervention may be required');
@@ -111,5 +128,4 @@ jobs:
     - name: Notify success (optional)
       if: success() && steps.check_changes.outputs.has_changes == 'true'
       run: |
-        echo "✅ Successfully updated holiday data"
-        echo "Changes committed to main branch"
+        echo "✅ Successfully created PR with updated holiday data"
